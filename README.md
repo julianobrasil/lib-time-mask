@@ -6,7 +6,7 @@ This is a personal project just for internal use at work (I used it to try out
 If you want more info on how to build an angular library with @angular/cli, take a look at this [great
 article](https://medium.com/@tomsu/how-to-build-a-library-for-angular-apps-4f9b38b0ed11).
 
-# MultiDatepicker
+# Input Time Mask
 
 This is a directive to turn a text input into a simple time input. The improvement of this directive
 over the default `<input type="time">` is the fact that the input will have the same looking accross

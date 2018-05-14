@@ -10,7 +10,7 @@ article](https://medium.com/@tomsu/how-to-build-a-library-for-angular-apps-4f9b3
 
 This is a directive to turn a text input into a simple time input. The improvement of this directive
 over the default `<input type="time">` is the fact that the input will have the same looking accross
-browsers. There's no graphical interface in this directive.
+browsers. There's no graphical interface: this is just a directive.
 
 ## Getting Started
 

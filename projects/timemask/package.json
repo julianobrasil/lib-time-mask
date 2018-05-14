@@ -1,0 +1,11 @@
+{
+  "name": "@julianobrasil/timemask",
+  "version": "0.0.1",
+  "peerDependencies": {
+    "@angular/common": "^6.0.1",
+    "@angular/core": "^6.0.1",
+    "@angular/forms": "^6.0.1",
+    "moment": "^2.22.1",
+    "@angular/cdk": "^6.0.1"
+  }
+}

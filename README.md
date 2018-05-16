@@ -34,6 +34,3 @@ You can use it like this:
 
 Notice that the ngModel is mandatory, as this directive implements the ControlValueAccessor interface.
 
-To see the possibilities, checkout this stackblitz demo: https://stackblitz.com/edit/angular-mulitdate-picker-demo
-
-So you can mess with the code (it's not so hard)

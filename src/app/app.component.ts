@@ -11,6 +11,6 @@ export type Moment = moment_.Moment;
   styleUrls: ['./app.component.css']
 })
 export class AppComponent {
-  inputCtrl: FormControl = new FormControl(moment([2017,2,10,14,50]));
+  inputCtrl: FormControl = new FormControl();
   title = 'demo';
 }

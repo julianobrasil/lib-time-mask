@@ -79,6 +79,7 @@ export class JpTimeMaskDirective implements OnInit, ControlValueAccessor {
           this._setInputText(evt.key);
         } else {
           this._trataDemaisTeclas();
+          evt.preventDefault();
         }
     }
   }
@@ -121,14 +122,14 @@ export class JpTimeMaskDirective implements OnInit, ControlValueAccessor {
     const caretPosition = this._doGetCaretPosition();
     const valor = this._el.nativeElement.value;
 
-    setTimeout(() => {
+    // setTimeout(() => {
       this._renderer.setProperty(this._el.nativeElement, 'value', valor);
       if (caretPosition < 3) {
         this._el.nativeElement.setSelectionRange(0, 2);
       } else {
         this._el.nativeElement.setSelectionRange(3, 6);
       }
-    });
+    // });
   }
 
   /**

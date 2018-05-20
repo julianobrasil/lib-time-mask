@@ -1,22 +1,25 @@
 import {
   BACKSPACE,
   DELETE,
+  ENTER,
   LEFT_ARROW,
   NINE,
-  RIGHT_ARROW,
-  ZERO,
   NUMPAD_NINE,
   NUMPAD_ZERO,
+  RIGHT_ARROW,
+  TAB,
+  ZERO,
 } from '@angular/cdk/keycodes';
 import {
   Directive,
   ElementRef,
-  forwardRef,
   Host,
   HostListener,
+  Input,
   OnInit,
   Renderer2,
   Self,
+  forwardRef,
 } from '@angular/core';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 
@@ -35,13 +38,28 @@ export type Moment = moment_.Moment;
   ],
 })
 export class JpTimeMaskDirective implements OnInit, ControlValueAccessor {
-  /** implements ControlValueAccessorInterface */
-  _onChange: (_: Moment) => void;
+  /** whether change the controle value upon blur/tab key press or while user types the time */
+  _jpTimeMaskChangeLazy = true;
+  @Input()
+  get jpTimeMaskChangeLazy(): boolean {
+    return this._jpTimeMaskChangeLazy;
+  }
+  set jpTimeMaskChangeLazy(jpTimeMaskChangeLazy: boolean) {
+    this._jpTimeMaskChangeLazy = jpTimeMaskChangeLazy !== false;
+  }
 
   /** implements ControlValueAccessorInterface */
-  _touched: () => void;
+  _onChange: (_: Moment) => void = () => {};
 
-  private _dateValue: Moment;
+  /** implements ControlValueAccessorInterface */
+  _touched: () => void = () => {};
+
+  private _dateValue: Moment = moment({
+    hour: 0,
+    minute: 0,
+    second: 0,
+    millisecond: 0,
+  });
 
   /**
    * Esta variável indica que o campo (horas ou minutos) deve se comportar como
@@ -54,11 +72,15 @@ export class JpTimeMaskDirective implements OnInit, ControlValueAccessor {
   ngOnInit() {
     this._el.nativeElement.style.fontFamily = 'monospace';
     this._el.nativeElement.style.cursor = 'default';
+    this._el.nativeElement.type = 'text';
+    this._el.nativeElement.value = '--:--';
   }
 
   /** Trata as teclas */
   @HostListener('keydown', ['$event'])
   onKeyDown(evt: KeyboardEvent) {
+    this._enforceInputLength();
+
     const keyCode = evt.keyCode;
     switch (keyCode) {
       case LEFT_ARROW:
@@ -71,22 +93,28 @@ export class JpTimeMaskDirective implements OnInit, ControlValueAccessor {
         this._clearHoursOrMinutes();
         break;
 
+      case ENTER:
+        this._el.nativeElement.blur();
+        break;
+
       default:
         if (
           (keyCode >= ZERO && keyCode <= NINE) ||
           (keyCode >= NUMPAD_ZERO && keyCode <= NUMPAD_NINE)
         ) {
           this._setInputText(evt.key);
-        } else {
-          this._trataDemaisTeclas();
-          evt.preventDefault();
         }
+    }
+    if (keyCode !== TAB) {
+      evt.preventDefault();
     }
   }
 
   /** Quando o componente recebe um click, é preciso selecionar horas ou minutos */
   @HostListener('click', ['$event'])
   onClick(evt: MouseEvent) {
+    this._enforceInputLength();
+
     this._fieldJustGotFocus = true;
     const caretPosition = this._doGetCaretPosition();
     if (caretPosition < 3) {
@@ -99,6 +127,8 @@ export class JpTimeMaskDirective implements OnInit, ControlValueAccessor {
   /** Quando o componente recebe o foco, é preciso selecionar horas ou minutos */
   @HostListener('focus', ['$event'])
   onFocus(evt: any) {
+    this._enforceInputLength();
+
     this._fieldJustGotFocus = true;
     const caretPosition = this._doGetCaretPosition();
     if (caretPosition < 3) {
@@ -111,25 +141,10 @@ export class JpTimeMaskDirective implements OnInit, ControlValueAccessor {
   /** Quando o componente perde o foco, dispara o touched do ControlValueAccessor */
   @HostListener('blur', ['$event'])
   onBlur(evt: any) {
+    if (this.jpTimeMaskChangeLazy) {
+      this._controlValueChanged();
+    }
     this._touched();
-  }
-
-  /**
-   * Quando o usuário digita qualquer tecla diferente de DELETE, BACKSPACE, LEFT_ARROW,
-   * RIGHT_ARROW e NÚMEROS
-   */
-  private _trataDemaisTeclas() {
-    const caretPosition = this._doGetCaretPosition();
-    const valor = this._el.nativeElement.value;
-
-    // setTimeout(() => {
-      this._renderer.setProperty(this._el.nativeElement, 'value', valor);
-      if (caretPosition < 3) {
-        this._el.nativeElement.setSelectionRange(0, 2);
-      } else {
-        this._el.nativeElement.setSelectionRange(3, 6);
-      }
-    // });
   }
 
   /**
@@ -195,16 +210,16 @@ export class JpTimeMaskDirective implements OnInit, ControlValueAccessor {
 
     completeTime = `${newHour}:${minutes}`;
 
-    setTimeout(() => {
-      this._renderer.setProperty(this._el.nativeElement, 'value', completeTime);
+    this._renderer.setProperty(this._el.nativeElement, 'value', completeTime);
+    if (!this.jpTimeMaskChangeLazy) {
       this._controlValueChanged();
-      if (!sendCaretToMinutes) {
-        this._el.nativeElement.setSelectionRange(0, 2);
-      } else {
-        this._el.nativeElement.setSelectionRange(3, 6);
-        this._fieldJustGotFocus = true;
-      }
-    });
+    }
+    if (!sendCaretToMinutes) {
+      this._el.nativeElement.setSelectionRange(0, 2);
+    } else {
+      this._el.nativeElement.setSelectionRange(3, 6);
+      this._fieldJustGotFocus = true;
+    }
   }
 
   /** Ajusta o campo dos minutos */
@@ -232,11 +247,11 @@ export class JpTimeMaskDirective implements OnInit, ControlValueAccessor {
 
     completeTime = `${hours}:${newMinutes}`;
 
-    setTimeout(() => {
-      this._renderer.setProperty(this._el.nativeElement, 'value', completeTime);
+    this._renderer.setProperty(this._el.nativeElement, 'value', completeTime);
+    if (!this.jpTimeMaskChangeLazy) {
       this._controlValueChanged();
-      this._el.nativeElement.setSelectionRange(3, 6);
-    });
+    }
+    this._el.nativeElement.setSelectionRange(3, 6);
   }
 
   /** Trata o evento de backspace ou tecla delete */
@@ -262,15 +277,15 @@ export class JpTimeMaskDirective implements OnInit, ControlValueAccessor {
 
     this._fieldJustGotFocus = true;
 
-    setTimeout(() => {
-      this._renderer.setProperty(this._el.nativeElement, 'value', newTime);
+    this._renderer.setProperty(this._el.nativeElement, 'value', newTime);
+    if (!this.jpTimeMaskChangeLazy) {
       this._controlValueChanged();
-      if (!sendCaretToMinutes) {
-        this._el.nativeElement.setSelectionRange(0, 2);
-      } else {
-        this._el.nativeElement.setSelectionRange(3, 6);
-      }
-    });
+    }
+    if (!sendCaretToMinutes) {
+      this._el.nativeElement.setSelectionRange(0, 2);
+    } else {
+      this._el.nativeElement.setSelectionRange(3, 6);
+    }
   }
 
   /** Implementation for ControlValueAccessor interface */
@@ -332,14 +347,14 @@ export class JpTimeMaskDirective implements OnInit, ControlValueAccessor {
     return iCaretPos;
   }
 
-  /** build 2-character string */
-  private _zeroFill(value: number): string {
-    return (value > 9 ? '' : '0') + value;
-  }
-
   /** build a time in 00:00 format */
   private _dateToStringTime(value: Moment) {
     return value.format('HH:mm');
+  }
+
+  /** build a time in dd/MM/yyyy 00:00 format */
+  private _dateToStringDateTime(value: Moment) {
+    return value.format('dd/MM/yyyy HH:mm:ss.SSS');
   }
 
   /** Turns a string in format --, -X, X-, XY into a number, considering '-' => 0 */
@@ -355,15 +370,75 @@ export class JpTimeMaskDirective implements OnInit, ControlValueAccessor {
 
   private _controlValueChanged() {
     const timeArray: string[] = this._el.nativeElement.value.split(':');
+
+    let _oldValue: Moment = this._dateValue
+      ? this._dateValue.clone()
+      : undefined;
+
     if (!this._dateValue || !this._dateValue.isValid()) {
       this._dateValue = moment();
     }
+
     this._dateValue = moment(
       this._dateValue.hour(this._stringToNumber(timeArray[0])),
     );
+
     this._dateValue = moment(
       this._dateValue.minute(this._stringToNumber(timeArray[1])),
     );
-    this._onChange(this._dateValue);
+
+    if (this._checkForChanges(_oldValue)) {
+      this._onChange(this._dateValue);
+    }
+  }
+
+  /**
+   * verify whether the date/time changed
+   *
+   * @param oldValue
+   * @returns true if the date/time value has changed
+   * @memberof JpTimeMaskDirective
+   */
+  private _checkForChanges(oldValue: Moment): boolean {
+    if ((!this._dateValue && !!oldValue) || (!!this._dateValue && !oldValue)) {
+      return true;
+    }
+
+    if (!this._dateValue && !oldValue) {
+      return false;
+    }
+
+    if (
+      (!this._dateValue.isValid() && oldValue.isValid()) ||
+      (this._dateValue.isValid() && !oldValue.isValid())
+    ) {
+      return true;
+    }
+
+    if (
+      this._dateToStringDateTime(this._dateValue) ===
+      this._dateToStringDateTime(oldValue)
+    ) {
+      return false;
+    }
+
+    return true;
+  }
+
+  /**
+   * Make sure the input length is 5
+   *
+   * @memberof JpTimeMaskDirective
+   */
+  private _enforceInputLength() {
+    // force max length to be 5
+    if (this._el.nativeElement.maxLength != 5) {
+      this._el.nativeElement.maxLength = 5;
+    }
+
+    // force min length to be 5
+    if (this._el.nativeElement.minLength != 5) {
+      this._el.nativeElement.minLength = 5;
+    }
   }
 }

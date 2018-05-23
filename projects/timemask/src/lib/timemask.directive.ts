@@ -54,6 +54,7 @@ export class JpTimeMaskDirective implements OnInit, ControlValueAccessor {
   /** implements ControlValueAccessorInterface */
   _touched: () => void = () => {};
 
+  /** the moment value of the input */
   private _dateValue: Moment = moment({
     hour: 0,
     minute: 0,
@@ -61,10 +62,7 @@ export class JpTimeMaskDirective implements OnInit, ControlValueAccessor {
     millisecond: 0,
   });
 
-  /**
-   * Esta variável indica que o campo (horas ou minutos) deve se comportar como
-   * se tivesse acabado de receber o foco
-   */
+  /** hether the input must behave as it has just gotten focused */
   private _fieldJustGotFocus = false;
 
   constructor(@Self() private _el: ElementRef, private _renderer: Renderer2) {}
@@ -76,7 +74,6 @@ export class JpTimeMaskDirective implements OnInit, ControlValueAccessor {
     this._el.nativeElement.value = '--:--';
   }
 
-  /** Trata as teclas */
   @HostListener('keydown', ['$event'])
   onKeyDown(evt: KeyboardEvent) {
     this._enforceInputLength();
@@ -110,7 +107,7 @@ export class JpTimeMaskDirective implements OnInit, ControlValueAccessor {
     }
   }
 
-  /** Quando o componente recebe um click, é preciso selecionar horas ou minutos */
+  /** when the input is clicked we must select the hours or the minutes */
   @HostListener('click', ['$event'])
   onClick(evt: MouseEvent) {
     this._enforceInputLength();
@@ -124,7 +121,7 @@ export class JpTimeMaskDirective implements OnInit, ControlValueAccessor {
     }
   }
 
-  /** Quando o componente recebe o foco, é preciso selecionar horas ou minutos */
+  /** when the input get focused (ex, by tab key) we must select the hours or the minutes */
   @HostListener('focus', ['$event'])
   onFocus(evt: any) {
     this._enforceInputLength();
@@ -138,7 +135,7 @@ export class JpTimeMaskDirective implements OnInit, ControlValueAccessor {
     }
   }
 
-  /** Quando o componente perde o foco, dispara o touched do ControlValueAccessor */
+  /** when the input looses focus, notify the ControlValueAccessor interface */
   @HostListener('blur', ['$event'])
   onBlur(evt: any) {
     if (this.jpTimeMaskChangeLazy) {
@@ -148,9 +145,11 @@ export class JpTimeMaskDirective implements OnInit, ControlValueAccessor {
   }
 
   /**
-   * Método chamado quando o usuário clica na seta direita ou esquerda
-   * Quando o usuário navega com as setas, algumas ações precisam ser tomadas
-   * para selecionar o campo certo: horas ou minutos
+   * When the user press on the right/left keys, we have to move the selected part of the input
+   * accordingly (hours => minutes => hours)
+   *
+   * @param keyCode
+   * @memberof JpTimeMaskDirective
    */
   private _decideWhetherToJumpAndSelect(keyCode: number) {
     const caretPosition = this._doGetCaretPosition();
@@ -168,7 +167,10 @@ export class JpTimeMaskDirective implements OnInit, ControlValueAccessor {
   }
 
   /**
-   * Método chamado quando o usuário digita uma tecla numérica
+   * change the hours or minutes parts, depending on where the caret is.
+   *
+   * @param key value (not code) of the key pressed
+   * @memberof JpTimeMaskDirective
    */
   private _setInputText(key: string) {
     const input: string[] = this._el.nativeElement.value.split(':');
@@ -186,8 +188,16 @@ export class JpTimeMaskDirective implements OnInit, ControlValueAccessor {
     this._fieldJustGotFocus = false;
   }
 
-  /** Ajusta o campo das horas */
-  private _setHours(hours: string, minutes: string, key) {
+  /**
+   * set the hours part of the mask when the user types in something and the caret is at the
+   * hours part
+   *
+   * @param hours the string representing the hours (2 digits)
+   * @param minutes the string representing the minutes (2 digits)
+   * @param key the value of the key that was pressed (just number keys)
+   * @memberof JpTimeMaskDirective
+   */
+  private _setHours(hours: string, minutes: string, key: string) {
     const hoursArray: string[] = hours.split('');
     const firstDigit: string = hoursArray[0];
     const secondDigit: string = hoursArray[1];
@@ -222,8 +232,16 @@ export class JpTimeMaskDirective implements OnInit, ControlValueAccessor {
     }
   }
 
-  /** Ajusta o campo dos minutos */
-  private _setMinutes(hours: string, minutes: string, key) {
+  /**
+   * set the minutes part of the mask when the user types in something and the caret is at the
+   * minutes part
+   *
+   * @param hours the string representing the hours (2 digits)
+   * @param minutes the string representing the minutes (2 digits)
+   * @param key the value of the key that was pressed (just number keys)
+   * @memberof JpTimeMaskDirective
+   */
+  private _setMinutes(hours: string, minutes: string, key: string) {
     const minutesArray: string[] = minutes.split('');
     const firstDigit: string = minutesArray[0];
     const secondDigit: string = minutesArray[1];
@@ -254,8 +272,12 @@ export class JpTimeMaskDirective implements OnInit, ControlValueAccessor {
     this._el.nativeElement.setSelectionRange(3, 6);
   }
 
-  /** Trata o evento de backspace ou tecla delete */
-  _clearHoursOrMinutes() {
+  /**
+   * handle the delete or backspace keys events
+   *
+   * @memberof JpTimeMaskDirective
+   */
+  private _clearHoursOrMinutes() {
     const caretPosition = this._doGetCaretPosition();
     const input: string[] = this._el.nativeElement.value.split(':');
 
@@ -313,9 +335,17 @@ export class JpTimeMaskDirective implements OnInit, ControlValueAccessor {
   }
 
   /*
-  ** Returns the caret (cursor) position of the specified text field.
-  ** Return value range is 0-nativeElement.value.length.
+  * Returns the caret position of the specified text field.
+  * Return value range is 0-nativeElement.value.length.
   */
+
+  /**
+   * Returns the caret position of the specified text field.
+   * Return value range is 0-nativeElement.value.length.
+   *
+   * @returns value range is 0-nativeElement.value.length.
+   * @memberof JpTimeMaskDirective
+   */
   private _doGetCaretPosition(): number {
     // Initialize
     let iCaretPos = 0;
@@ -352,7 +382,7 @@ export class JpTimeMaskDirective implements OnInit, ControlValueAccessor {
     return value.format('HH:mm');
   }
 
-  /** build a time in dd/MM/yyyy 00:00 format */
+  /** build a datetime in dd/MM/yyyy 00:00:00.000 format */
   private _dateToStringDateTime(value: Moment) {
     return value.format('dd/MM/yyyy HH:mm:ss.SSS');
   }
@@ -368,6 +398,12 @@ export class JpTimeMaskDirective implements OnInit, ControlValueAccessor {
     return Number(finalStr);
   }
 
+  /**
+   * notify the ControlValueAccessor interface when the input date has changed. In the lazy mode
+   * this happens just when the ENTER key is pressed or when the component looses focus.
+   *
+   * @memberof JpTimeMaskDirective
+   */
   private _controlValueChanged() {
     const timeArray: string[] = this._el.nativeElement.value.split(':');
 

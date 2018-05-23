@@ -1,11 +1,42 @@
 {
   "name": "@julianobrasil/timemask",
-  "version": "1.0.1",
+  "license": "MIT",
+  "version": "1.0.2",
+  "description": "@angular time mask for input controls",
+  "keywords": [
+    "@angular",
+    "directive",
+    "timemask",
+    "time",
+    "mask"
+  ],
+  "homepage": "https://github.com/julianobrasil/lib-time-mask#readme",
+  "bugs": { 
+    "url" : "https://github.com/julianobrasil/lib-time-mask/issues",
+    "email" : "juliano.brasil@gmail.com"
+  },
+  "repository" : { 
+    "type" : "git",
+    "url" : "https://github.com/julianobrasil/lib-time-mask.git"
+  },
   "peerDependencies": {
     "@angular/common": "^6.0.2",
     "@angular/core": "^6.0.2",
     "@angular/forms": "^6.0.2",
     "moment": "^2.22.1",
     "@angular/cdk": "^6.0.2"
+  },
+  "main": "bundles/julianobrasil-timemask.umd.js",
+  "module": "fesm5/julianobrasil-timemask.js",
+  "es2015": "fesm2015/julianobrasil-timemask.js",
+  "esm5": "esm5/julianobrasil-timemask.js",
+  "esm2015": "esm2015/julianobrasil-timemask.js",
+  "fesm5": "fesm5/julianobrasil-timemask.js",
+  "fesm2015": "fesm2015/julianobrasil-timemask.js",
+  "typings": "julianobrasil-timemask.d.ts",
+  "metadata": "julianobrasil-timemask.metadata.json",
+  "sideEffects": false,
+  "dependencies": {
+    "tslib": "^1.9.0"
   }
 }

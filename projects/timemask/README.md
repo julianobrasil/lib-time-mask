@@ -1,4 +1,4 @@
-GitHub | [Stackblitz demo](https://stackblitz.com/edit/angular-timemask-demo)
+[GitHub](https://github.com/julianobrasil/lib-time-mask) | [Stackblitz demo](https://stackblitz.com/edit/angular-timemask-demo)
 
 # Important Note
 
@@ -6,7 +6,7 @@ This directive was built just for personal use (I used it mainly to try out a ne
 feature: `ng generate library`).
 
 By 'personal' I mean there isn't any unit tests. So if you decide to use it, it's at your own risk.
-Also, if you would like to contribute, I'll be glad to review any PR.
+Also, if you would like to contribute, go to [github repo](https://github.com/julianobrasil/lib-time-mask) and submit a PR.
 
 If you want more info on how to build an angular library with `@angular/cli`, take a look at
 [this great article](https://medium.com/@tomsu/how-to-build-a-library-for-angular-apps-4f9b38b0ed11).

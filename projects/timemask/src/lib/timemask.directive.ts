@@ -13,7 +13,6 @@ import {
 import {
   Directive,
   ElementRef,
-  Host,
   HostListener,
   Input,
   OnInit,
@@ -21,7 +20,7 @@ import {
   Self,
   forwardRef,
 } from '@angular/core';
-import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
+import {ControlValueAccessor, NG_VALUE_ACCESSOR} from '@angular/forms';
 
 import * as moment_ from 'moment';
 const moment = moment_;
@@ -37,8 +36,10 @@ export type Moment = moment_.Moment;
     },
   ],
 })
-export class JpTimeMaskDirective implements OnInit, ControlValueAccessor {
-  /** whether change the controle value upon blur/tab key press or while user types the time */
+export class JpTimeMaskDirective implements OnInit,
+    ControlValueAccessor {
+  /** whether change the controle value upon blur/tab key press or while user
+   * types the time */
   _jpTimeMaskChangeLazy = true;
   @Input()
   get jpTimeMaskChangeLazy(): boolean {
@@ -47,6 +48,29 @@ export class JpTimeMaskDirective implements OnInit, ControlValueAccessor {
   set jpTimeMaskChangeLazy(jpTimeMaskChangeLazy: boolean) {
     this._jpTimeMaskChangeLazy = jpTimeMaskChangeLazy !== false;
   }
+
+  /** Whether to use utc with the moment objects */
+  @Input()
+  get useUtc(): boolean {
+    return this._useUtc;
+  }
+  set useUtc(value: boolean) {
+    this._useUtc = value;
+    this._dateValue = value ?
+                          moment.utc({
+                            hour: 0,
+                            minute: 0,
+                            second: 0,
+                            millisecond: 0,
+                          }) :
+                          moment({
+                            hour: 0,
+                            minute: 0,
+                            second: 0,
+                            millisecond: 0,
+                          });
+  }
+  private _useUtc: boolean;
 
   /** implements ControlValueAccessorInterface */
   _onChange: (_: Moment) => void = () => {};
@@ -95,10 +119,8 @@ export class JpTimeMaskDirective implements OnInit, ControlValueAccessor {
         break;
 
       default:
-        if (
-          (keyCode >= ZERO && keyCode <= NINE) ||
-          (keyCode >= NUMPAD_ZERO && keyCode <= NUMPAD_NINE)
-        ) {
+        if ((keyCode >= ZERO && keyCode <= NINE) ||
+            (keyCode >= NUMPAD_ZERO && keyCode <= NUMPAD_NINE)) {
           this._setInputText(evt.key);
         }
     }
@@ -121,7 +143,8 @@ export class JpTimeMaskDirective implements OnInit, ControlValueAccessor {
     }
   }
 
-  /** when the input get focused (ex, by tab key) we must select the hours or the minutes */
+  /** when the input get focused (ex, by tab key) we must select the hours or
+   * the minutes */
   @HostListener('focus', ['$event'])
   onFocus(evt: any) {
     this._enforceInputLength();
@@ -145,15 +168,14 @@ export class JpTimeMaskDirective implements OnInit, ControlValueAccessor {
   }
 
   /**
-   * When the user press on the right/left keys, we have to move the selected part of the input
+   * When the user press on the right/left keys, we have to move the selected
+   * part of the input
    * accordingly (hours => minutes => hours)
    *
    * @param keyCode
    * @memberof JpTimeMaskDirective
    */
   private _decideWhetherToJumpAndSelect(keyCode: number) {
-    const caretPosition = this._doGetCaretPosition();
-
     switch (keyCode) {
       case RIGHT_ARROW:
         setTimeout(() => this._el.nativeElement.setSelectionRange(3, 6));
@@ -189,7 +211,8 @@ export class JpTimeMaskDirective implements OnInit, ControlValueAccessor {
   }
 
   /**
-   * set the hours part of the mask when the user types in something and the caret is at the
+   * set the hours part of the mask when the user types in something and the
+   * caret is at the
    * hours part
    *
    * @param hours the string representing the hours (2 digits)
@@ -233,7 +256,8 @@ export class JpTimeMaskDirective implements OnInit, ControlValueAccessor {
   }
 
   /**
-   * set the minutes part of the mask when the user types in something and the caret is at the
+   * set the minutes part of the mask when the user types in something and the
+   * caret is at the
    * minutes part
    *
    * @param hours the string representing the hours (2 digits)
@@ -290,10 +314,10 @@ export class JpTimeMaskDirective implements OnInit, ControlValueAccessor {
     if (caretPosition > 2) {
       newTime = `${hours}:--`;
       sendCaretToMinutes = true;
-      this._dateValue.set({ minute: 0, second: 0, millisecond: 0 });
+      this._dateValue.set({minute: 0, second: 0, millisecond: 0});
     } else {
       newTime = `--:${minutes}`;
-      this._dateValue.set({ hour: 0, second: 0, millisecond: 0 });
+      this._dateValue.set({hour: 0, second: 0, millisecond: 0});
       sendCaretToMinutes = false;
     }
 
@@ -312,7 +336,7 @@ export class JpTimeMaskDirective implements OnInit, ControlValueAccessor {
 
   /** Implementation for ControlValueAccessor interface */
   writeValue(value: Moment): void {
-    this._dateValue = moment(value);
+    this._dateValue = this.useUtc ? moment.utc(value) : moment(value);
 
     const v = value ? this._dateToStringTime(value) : '--:--';
 
@@ -320,14 +344,10 @@ export class JpTimeMaskDirective implements OnInit, ControlValueAccessor {
   }
 
   /** Implementation for ControlValueAccessor interface */
-  registerOnChange(fn: (_: Moment) => void): void {
-    this._onChange = fn;
-  }
+  registerOnChange(fn: (_: Moment) => void): void { this._onChange = fn; }
 
   /** Implementation for ControlValueAccessor interface */
-  registerOnTouched(fn: () => void): void {
-    this._touched = fn;
-  }
+  registerOnTouched(fn: () => void): void { this._touched = fn; }
 
   /** Implementation for ControlValueAccessor interface */
   setDisabledState(isDisabled: boolean): void {
@@ -365,10 +385,8 @@ export class JpTimeMaskDirective implements OnInit, ControlValueAccessor {
 
       // The caret position is selection length
       iCaretPos = oSel.text.length;
-    } else if (
-      nativeElement.selectionStart ||
-      nativeElement.selectionStart === '0'
-    ) {
+    } else if (nativeElement.selectionStart ||
+               nativeElement.selectionStart === '0') {
       // Firefox support
       iCaretPos = nativeElement.selectionStart;
     }
@@ -378,16 +396,15 @@ export class JpTimeMaskDirective implements OnInit, ControlValueAccessor {
   }
 
   /** build a time in 00:00 format */
-  private _dateToStringTime(value: Moment) {
-    return value.format('HH:mm');
-  }
+  private _dateToStringTime(value: Moment) { return value.format('HH:mm'); }
 
   /** build a datetime in dd/MM/yyyy 00:00:00.000 format */
   private _dateToStringDateTime(value: Moment) {
     return value.format('dd/MM/yyyy HH:mm:ss.SSS');
   }
 
-  /** Turns a string in format --, -X, X-, XY into a number, considering '-' => 0 */
+  /** Turns a string in format --, -X, X-, XY into a number, considering '-' =>
+   * 0 */
   private _stringToNumber(str: string) {
     if (str.indexOf('-') === -1) {
       return Number(str);
@@ -399,29 +416,35 @@ export class JpTimeMaskDirective implements OnInit, ControlValueAccessor {
   }
 
   /**
-   * notify the ControlValueAccessor interface when the input date has changed. In the lazy mode
-   * this happens just when the ENTER key is pressed or when the component looses focus.
+   * notify the ControlValueAccessor interface when the input date has changed.
+   * In the lazy mode
+   * this happens just when the ENTER key is pressed or when the component
+   * looses focus.
    *
    * @memberof JpTimeMaskDirective
    */
   private _controlValueChanged() {
     const timeArray: string[] = this._el.nativeElement.value.split(':');
 
-    let _oldValue: Moment = this._dateValue
-      ? this._dateValue.clone()
-      : undefined;
+    let _oldValue: Moment =
+        this._dateValue ? this._dateValue.clone() : undefined;
 
     if (!this._dateValue || !this._dateValue.isValid()) {
-      this._dateValue = moment();
+      this._dateValue = this.useUtc ? moment.utc() : moment();
     }
 
-    this._dateValue = moment(
-      this._dateValue.hour(this._stringToNumber(timeArray[0])),
-    );
+    this._dateValue =
+        this.useUtc ?
+            moment.utc(
+                this._dateValue.hour(this._stringToNumber(timeArray[0]))) :
+            moment(this._dateValue.hour(this._stringToNumber(timeArray[0])));
 
-    this._dateValue = moment(
-      this._dateValue.minute(this._stringToNumber(timeArray[1])),
-    );
+    this._dateValue =
+        this.useUtc ?
+            moment.utc(
+                this._dateValue.minute(this._stringToNumber(timeArray[1]))) :
+            moment(
+                this._dateValue.minute(this._stringToNumber(timeArray[1])), );
 
     if (this._checkForChanges(_oldValue)) {
       this._onChange(this._dateValue);
@@ -444,17 +467,13 @@ export class JpTimeMaskDirective implements OnInit, ControlValueAccessor {
       return false;
     }
 
-    if (
-      (!this._dateValue.isValid() && oldValue.isValid()) ||
-      (this._dateValue.isValid() && !oldValue.isValid())
-    ) {
+    if ((!this._dateValue.isValid() && oldValue.isValid()) ||
+        (this._dateValue.isValid() && !oldValue.isValid())) {
       return true;
     }
 
-    if (
-      this._dateToStringDateTime(this._dateValue) ===
-      this._dateToStringDateTime(oldValue)
-    ) {
+    if (this._dateToStringDateTime(this._dateValue) ===
+        this._dateToStringDateTime(oldValue)) {
       return false;
     }
 

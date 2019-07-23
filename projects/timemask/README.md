@@ -60,6 +60,17 @@ change strategy can be switched by the `jpTimeMaskChangeLazy` attribute:
 <!-- This sets the change strategy to eager --> 
 <input jpTimeMask [jpTimeMaskChangeLazy]="false" [formControl]="inputCtrl">
 ```
+
+## UTC
+
+If you want the component to work internally with UTC time, just set the `useUtc` input to ' true'
+(the default value is `false`):
+
+```html
+<!-- This sets the underlying moment object to work with Utc --> 
+<input jpTimeMask [useUtc]="true" [formControl]="inputCtrl">
+```
+
 ## Known Caveats
 
 This directive doesn't prevent/support the use of `value` attribute on the input.

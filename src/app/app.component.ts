@@ -13,7 +13,7 @@ export type Moment = moment_.Moment;
 export class AppComponent {
   inputCtrl: FormControl = new FormControl(moment([2018, 2, 3, 3, 4, 1, 1]));
   inputCtrl1: FormControl = new FormControl(moment.utc([2018, 2, 3, 3, 4, 1, 1]));
-  inputCtrl2: FormControl = new FormControl();
+  inputCtrl2: FormControl = new FormControl(moment([2018, 2, 3, 3, 4, 1, 1]));
   title = 'demo';
   test = moment([2018, 2, 3, 3, 40, 1, 1]);
 }

@@ -10,7 +10,6 @@
 <div>
   Lazy:<br>
   <input jpTimeMask
-         type="time"
          [formControl]="inputCtrl"
          maxlength="20"> {{inputCtrl.value}}
 </div>
@@ -26,5 +25,6 @@
   UTC: (useUtc=true)<br>
   <input jpTimeMask
          [formControl]="inputCtrl1"
+         [jpTimeMaskChangeLazy]="false"
          [useUtc]="true"> {{inputCtrl1.value}}
 </div>

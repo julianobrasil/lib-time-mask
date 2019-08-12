@@ -1,7 +1,7 @@
 {
   "name": "@julianobrasil/timemask",
   "license": "MIT",
-  "version": "1.1.0",
+  "version": "1.1.2",
   "description": "@angular time mask for input controls",
   "keywords": [
     "@angular",
@@ -20,11 +20,11 @@
     "url" : "https://github.com/julianobrasil/lib-time-mask.git"
   },
   "peerDependencies": {
-    "@angular/common": "^8.1.2",
-    "@angular/core": "^8.1.2",
-    "@angular/forms": "^8.1.2",
-    "moment": "^2.24.0",
-    "@angular/cdk": "^8.1.1"
+    "@angular/common": ">= 6.0.0",
+    "@angular/core": ">= 6.0.0",
+    "@angular/forms": ">= 6.0.0",
+    "moment": ">= 2.24.0",
+    "@angular/cdk": ">= 6.0.0"
   },
   "main": "bundles/julianobrasil-timemask.umd.js",
   "module": "fesm5/julianobrasil-timemask.js",
